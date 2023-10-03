@@ -54,64 +54,55 @@
 	// So for example a position of 1.2f means 0.2 along the second curve (the curve at index 1).
 	void Application::drawCarOnTrack(float position)
 	{
-		// TODO
-		int trackInt = static_cast<int>(position);
-		float t = fmodf(position, 1.0f);
-		//cin >> trackInt;
+		int trackInt = static_cast<int>(position); //Gets track index from integer component of position value 
+		float t = fmodf(position, 1.0f); //Maps t from position (0) to 1
 		
-		if (trackInt >= 0 && trackInt < m_track.size()) {
-			const Bezier& curve = m_track[trackInt];
-			Vector2 p0 = curve.p0;
-			Vector2 p1 = curve.p1;
-			Vector2 p2 = curve.p2;
-			Vector2 p3 = curve.p3;
-			Vector2 curvePos = curve.cubicBezier(p0, p1, p2, p3, t);//Calculate car's position on curve
+		if (trackInt >= 0 && trackInt < m_track.size()) { //Checks that track number is valid
 			
-			float carAngle = findTangentAngle(findTangentVector(p0, p1, p2, p3, t));
+			const Bezier& curve = m_track[trackInt]; // Retrieve the current Bezier curve from the m_track vector based on trackInt
+
+			Vector2 curvePos = curve.cubicBezier(curve.p0, curve.p1, curve.p2, curve.p3, t);//Calculate car's position on curve using cubic Bezier function
+
+			float carAngle = findTangentAngle(findTangentVector(curve.p0, curve.p1, curve.p2, curve.p3, t)); //Calculate the Angle of the tangent
 			
-			drawCar(curvePos, carAngle);
+			drawCar(curvePos, carAngle); //Draws car at position and angle 
 		}
 	}
 
+	//Calculates the tangent vector at a given point on a Bezier curve.
+	//Returns a Vector2 representing the tangent vector at the specified point.
+	//p0, p1, p2, p3: Control points of the Bezier curve.
+	//t is a value between 0 and 1 representing the point on the curve.
 	Vector2 Application::findTangentVector(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t) {
 		Vector2 tanPos;
-		tanPos.x = 3 * pow((1 - t), 2) * (p1.x - p0.x) + 6 * (1 - t) * t * (p2.x - p1.x) + 3 * (t * t) * (p3.x - p2.x);
-		tanPos.y = 3 * pow((1 - t), 2) * (p1.y - p0.y) + 6 * (1 - t) * t * (p2.y - p1.y) + 3 * (t * t) * (p3.y - p2.y);
+
+		tanPos.x = 3 * pow((1 - t), 2) * (p1.x - p0.x) + 6 * (1 - t) * t * (p2.x - p1.x) + 3 * (t * t) * (p3.x - p2.x); //Calculates the x component of the vector using Bezier function
+		tanPos.y = 3 * pow((1 - t), 2) * (p1.y - p0.y) + 6 * (1 - t) * t * (p2.y - p1.y) + 3 * (t * t) * (p3.y - p2.y);//Calculates the y component of the vector
 		return tanPos;
 	}
 
+	//Calculates the angle of a given vector in radians, and then converts to degrees.
+	//Returns a float value measured in degrees.
 	float Application::findTangentAngle(Vector2 position) {
-		float angleRadians = atan2f(position.y, position.x);
-		float angleDegrees = angleRadians * (180/ 3.14159265358979323846f);
-		return angleDegrees+90;
+		float angleRadians = atan2f(position.y, position.x); //Finds Arctan taking y and x components of vector as parameters
+		float angleDegrees = angleRadians * (180/ 3.14159265358979323846f); //Converts angle from radians to degrees
+		return angleDegrees+90; //Returns value and adds 90 so that the car sprite aligns with the track correctly
 	}
 
 	// Called on each frame to advance the car position variable
 	void Application::updateCarPosition()
-	{
-		int trackInt = static_cast<int>(m_carPosition);
-		float t = fmodf(m_carPosition, 1.0f);
-
-
-		m_carPosition = fmodf(m_carPosition, m_track.size());
-		
-		//const Bezier& curve = m_track[trackInt];
-		//ector2 tangent = findTangentVector(curve.p0, curve.p1, curve.p2, curve.p3, t);
-
-		m_carPosition += 0.01f;
-		
-		
-		/*
-		//Target Speed in units per frame (maybe adjust)
-		float targetSpeed = 0.01f; 
-
+	{		
 		//Current Track number
 		int trackID = static_cast<int>(m_carPosition);
 
+		// Wrap the car position to be in the range 0 to m_track.size()
 		m_carPosition = fmodf(m_carPosition, m_track.size());
-
+		
 		//Position within current curve
 		float t = fmodf(m_carPosition, 1.0f);
+		
+		//Track last position for constant speed
+		float lastPosition;
 		
 		if (trackID >= 0 && trackID < m_track.size()) {
 			//Bezier container for current curve
@@ -123,21 +114,19 @@
 			//Calculating the length of the tangent vector
 			float currentSpeed = tangent.magnitude();
 
-			//Scaling factor to match the desired speed value
-			float scalingFactor = targetSpeed / currentSpeed;
+			//Changes last position to current before updating
+			lastPosition = m_carPosition;
+			
+			m_carPosition += m_carSpeed / currentSpeed; //Updates current position by dividing our chosen speed by the magnitude of the tangent of the curve
+			
+			//Difference between last position and current position
+			float diff = lastPosition - m_carPosition;
 
-			m_totalDistance += targetSpeed;
-			float deltaT = m_totalDistance / curve.curveLength;
-
-			// Increment the car position
-			m_carPosition += deltaT;
-			// Wrap the car position to be in the range 0 to m_track.size()
-			m_carPosition = fmodf(m_carPosition, m_track.size());
 		}
 		else {
-			m_carPosition += 0.01f;
+			cout << "trackID Invalid."; 
 		}
-		*/
+		
 	}
 
 	//----------------------------------------------------------------------------

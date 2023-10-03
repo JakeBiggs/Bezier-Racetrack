@@ -14,14 +14,6 @@ void Bezier::draw(SDL_Renderer* renderer) const
 	const float invN = 1.0f / n;
 	Vector2 pLast = cubicBezier(p0, p1, p2, p3, 0);
 	
-	/*
-	for (float t = 0; t < 1; t += invN) {
-		Vector2 pFinal = cubicBezier(p0, p1, p2, p3, t);
-		SDL_RenderDrawLine(renderer, pLast.x, pLast.y, pFinal.x, pFinal.y);
-		pLast = pFinal;
-	}
-	*/
-
 	for (int i = 1; i <= n; ++i) {
 		float t = i * invN;  // Using invN to increment t uniformly because it didnt work in the for loop :(
 		Vector2 pFinal = cubicBezier(p0, p1, p2, p3, t);
@@ -33,6 +25,7 @@ void Bezier::draw(SDL_Renderer* renderer) const
 	}
 		
 }
+
 
 Vector2 Bezier::quadraticBezier(Vector2 p0, Vector2 p1, Vector2 p2, const float t) {
 	Vector2 point;

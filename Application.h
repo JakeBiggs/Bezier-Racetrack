@@ -36,7 +36,6 @@ private:
 
 	std::vector<Bezier> m_track;
 	float m_carPosition = 0.0f;
-	float m_carSpeed = 0.01f;
-	float m_totalDistance = 0.0f;
+	float m_carSpeed = 2.0f;
 };
 
